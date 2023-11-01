@@ -29,26 +29,26 @@ Before running this project, you'll need:
    ```
 
 2. Navigate to the project directory: 
-```bash
-cd Luegle
-```
+   ```bash
+   cd Luegle
+   ```
 
 3. Install Dependencies: 
-```bash
-npm install
-```
+   ```bash
+   npm install
+   ```
 
 4. Create a '.env' file in the root directory and add your Google Maps API key.
-```bash
-GOOGLE_MAPS_API_KEY=your_api_key_here
-```
+   ```bash
+   GOOGLE_MAPS_API_KEY=your_api_key_here
+   ```
 
 5. Start the development server 
-```bash
-npm start   
-or 
-nodemon server.js   (for continuous changes)
-```
+   ```bash
+   npm start   
+   or 
+   nodemon server.js   (for continuous changes)
+   ```
 ## Usage
 
 Once the application is running, you can interact with the map by selecting different geographic zones. Points of interest within the selected zone will be displayed on the map, and you can toggle between different layers to visualize various boundaries.
