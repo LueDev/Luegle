@@ -1,4 +1,4 @@
-![/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/Luegle/public/Luegle Cover.png]
+![Luegle Cover](https://github.com/LueDev/Luegle/blob/main/public/Luegle_Cover.png)
 
 # Luegle - An Interactive Geo-Mapping Application
 
