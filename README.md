@@ -1,29 +1,43 @@
-# Foobar
+# Luegle - An Interactive Geo-Mapping Application
 
-Foobar is a Python library for dealing with word pluralization.
+This project is an interactive web-based mapping application that allows users to visualize and interact with various geographic zones such as borough boundaries, city council districts, community districts, and more within New York City. Users can select zones, view details, and integrate with Google Places API to enrich the map with various points of interest.
 
-## Installation
+## Features
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
+- Interactive Map with selectable zones.
+- Integration with Google Places API to display points of interest.
+- Layer toggling to display different geo-boundaries.
+- Responsive design for desktop and mobile devices.
+- User account creation for saving preferences and customizations.
 
+## Getting Started
+
+### Prerequisites
+
+Before running this project, you'll need:
+
+- Node.js installed on your system.
+- Google Maps API Key with Maps Javascript API and Places API enabled.
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/LueDev/Luegle.git
+   ```
+
+2. Navigate to the project directory: 
 ```bash
-pip install foobar
+cd Luegle
 ```
 
-## Usage
-
-```python
-import foobar
-
-# returns 'words'
-foobar.pluralize('word')
-
-# returns 'geese'
-foobar.pluralize('goose')
-
-# returns 'phenomenon'
-foobar.singularize('phenomena')
+3. Install Dependencies: 
+```bash
+npm install
 ```
+
+4. 
+
 
 ## Contributing
 

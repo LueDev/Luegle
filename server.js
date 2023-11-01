@@ -29,6 +29,6 @@ app.get('/api/google-maps-key', (req, res) => {
 app.use('/app.js', express.static('app.js')); // Serve app.js statically
 
 //importing the geojson data statically for express js to utilize: 
-app.use('/geojson', express.static('/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/my_Phase_1_Project/NYC_GeoJSON_Data'));
+app.use('/geojson', express.static('/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/Luegle/NYC_GeoJSON_Data'));
 
 app.listen(3000, () => console.log('Server started on port 3000'));
