@@ -79,7 +79,7 @@ const layersConfig = [
     name: "Community_Districts",
     filePath:
       "/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/Luegle/NYC_GeoJSON_Data/Community_Districts.geojson",
-    active: true,
+    active: false,
   },
   {
     id: "congressionalDistricts",
@@ -93,7 +93,7 @@ const layersConfig = [
     name: "Election_Districts",
     filePath:
       "/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/Luegle/NYC_GeoJSON_Data/Election_Districts.geojson",
-    active: false,
+    active: true,
   },
   {
     id: "policeDistricts",
@@ -189,6 +189,12 @@ function loadGeoJsonLayer(layerConfig) {
         });
 
       });
+
+      // on mouseover, show the borough and zoneID
+      map.data.addListener('mouseover', (event)=>{
+
+      });
+
     })
     .catch((err) => {
       console.error("Error loading GeoJSON data", err);

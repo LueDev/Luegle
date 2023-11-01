@@ -1,3 +1,5 @@
+![/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/Luegle/public/Luegle Cover.png]
+
 # Luegle - An Interactive Geo-Mapping Application
 
 This project is an interactive web-based mapping application that allows users to visualize and interact with various geographic zones such as borough boundaries, city council districts, community districts, and more within New York City. Users can select zones, view details, and integrate with Google Places API to enrich the map with various points of interest.
@@ -67,5 +69,6 @@ Project Link: https://github.com/LueDev/Luegle
 ## Acknowledgments
 - Google Maps JavaScript API
 - GeoJSON Data Sources
+   - NYC Open Data Boundaries Map
 - Flatiron School
 - All Contributors
