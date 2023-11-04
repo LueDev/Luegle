@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const fs = require('fs');
 const app = express();
+const path = require('path')
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.get('/api/google-maps-key', (req, res) => {
     res.json({googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY });
 });
 
+app.use('/scripts', express.static(path.join(__dirname, 'public')))
 app.use('/app.js', express.static('app.js')); // Serve app.js statically
 
 //importing the geojson data statically for express js to utilize: 
