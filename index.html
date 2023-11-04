@@ -1,18 +1,34 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Google Maps Demo</title>
+    <title>Luegle</title>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script>
     <script src="/app.js"></script>
     <style>
         #map {
-            height: 800px;
+            height: 900px;
             width: 100%;
         }
     </style>
 </head>
 <body>
+    
     <div id="map"></div>
 
+
+    <div id="placesListing" style="height: 400px; overflow: auto;">
+        <form id="searchForm">
+            <label for="Search">Search: </label>
+            <input type="text" id="Search" name="Search" placeholder="Search Query" required>
+        </form>
+        <label for="ratingFilter">Minimum Rating:</label>
+        <select id="ratingFilter">
+            <option value="0">Any</option>
+            <option value="4">4 and above</option>
+            <option value="4.5">4.5 and above</option>
+        </select>
+        <button id="applyFiltersButton">Apply Filters</button>
+    </div>
 
 </body>
 </html>
