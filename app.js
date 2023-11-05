@@ -75,6 +75,9 @@ let selectedZoneCoords = {};
 //Store the boundary box of a selected zone, using the zone as the key
 let selectedZoneBBOX = {};
 
+//Store the filtered Places within in each zone
+let placesWithinSelectedZone = {}
+
 /**
  * Initializes the Google Map instance, centers it at the specified coordinates,
  * and loads the active GeoJSON layers.
@@ -200,18 +203,20 @@ function queryPlacesAPI(searchTerm){
           // Check if the 'results' property exists in the response
           if (data && data.results) {
 
-            console.log(data)
+            console.log("DATA: ", data)
             // Filter the places within the zone polygon
             const placesInZone = filterQueryPlacesAPIResults(data, zone)
-    
+            if(placesInZone !== undefined){placesWithinSelectedZone[zone] = placesInZone}
             // Log the filtered places or render them as needed
-            console.log("Places in Zone:", placesInZone);
+            // console.log("Places in Zone:", placesInZone);
           } else {
             console.error("No results found in the API response");
           }
         })
         .catch(error => console.error("ERROR WITH THE PLACES API fetch: ", error));
     });
+
+    console.log("PLACES WITHIN SELECTED ZONE: ", placesWithinSelectedZone)
     
 
     // return fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=midpoint_latitude,midpoint_longitude&radius=search_radius&type=place_type&keyword=search_keyword&key=${data.googleMapsApiKey}
@@ -286,6 +291,7 @@ function loadGeoJsonLayer(layerConfig) {
           delete selectedZones[zoneId];
           delete selectedZoneBBOX[zoneId];
           delete selectedZoneCoords[zoneId];
+          delete placesWithinSelectedZone[zoneId]
           console.log("SELECTED ZONE COORDS: ", selectedZoneCoords);
           console.log("SELECTED ZONE BBOX: ", selectedZoneBBOX);
         } else {
