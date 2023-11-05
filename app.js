@@ -62,15 +62,18 @@ const layersConfig = [
 
 // Object to track the selected zones on the map
 let selectedZones = {};
-let zonesListed = {};
 
 // Global map object
 let map;
 
 // Store the GeoJSON features
-let geoJsonFeatures = {}
-let selectedZoneCoords = {}
-let selectedZoneBBOX = {}
+let geoJsonFeatures = {};
+
+//Store the Coordinates of a selected zone, using the zone as the key
+let selectedZoneCoords = {};
+
+//Store the boundary box of a selected zone, using the zone as the key
+let selectedZoneBBOX = {};
 
 /**
  * Initializes the Google Map instance, centers it at the specified coordinates,
@@ -80,8 +83,8 @@ let selectedZoneBBOX = {}
  */
 async function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
-    center: { lat: 40.7465, lng: -74.0014 },
-    zoom: 13,
+    center: { lat: 40.7128, lng: -74.006 },
+    zoom: 11,
     // disableDefaultUI: true,
   });
 
@@ -107,37 +110,118 @@ function getZoneId(feature) {
     feature.getProperty("cong_dist") ||
     feature.getProperty("elect_dist") ||
     feature.getProperty("precinct") ||
-    feature.getProperty("school_dist") 
+    feature.getProperty("school_dist")
   );
 }
 
 //to be used with json
-function getZoneFromFeature(feature){
+function getZoneFromFeature(feature) {
   return (
-    feature['properties']['boro_cd'] ||
-    feature['properties']['boro_code'] ||
-    feature['properties']['cong_dist'] ||
-    feature['properties']['elect_dist'] ||
-    feature['properties']['precinct'] ||
-    feature['properties']['school_dist']
-  )
+    feature["properties"]["boro_cd"] ||
+    feature["properties"]["boro_code"] ||
+    feature["properties"]["cong_dist"] ||
+    feature["properties"]["elect_dist"] ||
+    feature["properties"]["precinct"] ||
+    feature["properties"]["school_dist"]
+  );
 }
 
 // Function to compute the bounding box for each selected zone
+/**
+ * NOTE: A bounding box typically consists of two points: Southwest Corner and NorthEast Corner/
+ * THIS Constitutes as a boundary box. 
+ * 
+    -73.85997492285983,
+    40.70110059871763,
+    -73.83696237811037,
+    40.7092234564188
+  
+ */
 function computeBoundingBoxes() {
   Object.entries(selectedZoneCoords).forEach(([zoneId, geometry]) => {
-    const bbox = turf.bbox(geometry); 
-    selectedZoneBBOX[zoneId] = bbox
-    console.log(`Bounding box for zone ${zoneId}:`, selectedZoneBBOX[zoneId]);
-    console.log(`All Selected BBOX Coords: `, selectedZoneBBOX)
+    const bbox = turf.bbox(geometry);
+    selectedZoneBBOX[zoneId] = bbox;
   });
 }
 
+function calculateCenterRadius(zoneBBOX){
+   /**
+    * We'll use the turf.centroid(points) method to find the middle of a set of points (the bbox NE and SW corners.)
+    */   
+   const centerRadiusObj = {}
+   const [SWLat, SWLng, NELat, NELng] = zoneBBOX;
+
+   const calculatedCenter = turf.point([(SWLng + NELng) / 2, (SWLat + NELat) / 2]);
+   centerRadiusObj['center'] = calculatedCenter
+
+   // Define the SouthWest and NorthEast Corner
+   const SWcorner = turf.point([SWLng, SWLat])
+   const NEcorner = turf.point([NELng, NELat])
+  //  console.log("SWCorner: ", SWcorner, "\n\nNECorner: ", NEcorner)
+ 
+   // Calculate the distance to each corner and find the maximum in meters.
+   const radius = Math.max(turf.distance(calculatedCenter, SWcorner, {units: 'meters'}), turf.distance(calculatedCenter,NEcorner, {units: 'meters'}))  
+   centerRadiusObj['radius'] = radius
+   
+
+   console.log("AT THE END CALCULATE BBOX FARTHEST CORNER RADIUS Function. centerRadiusObj= ", centerRadiusObj)
+   return centerRadiusObj;
+}
+
+
+function queryPlacesAPI(){
+
+  /**
+   * Objective: For each zone in the selectedZoneBBOX, we're calling the google places api with functions calculateCenterPoint and calculateRadiusFromCenterToBBOXPoint (use the Haversine formula to calculate the distance between two points)
+   * Step 1: Call the returnGoogleMapKey() promise fetching the key from the endpoint on server.js
+   * Step 2: If successful, call calculateCenterPoint and calculateRadiusFromCenter and pass these values into the URL
+   */
+    
+  returnGoogleMapKey()
+  .then((data) => {
+    
+    /**For Every BBOX we have, we'll calculate the center point and radius within the bbox 
+     * NOTE: the radius will capture the entire bbox if captured from the bbox point furthest from the middle to account for irregular polygons with extended points.  
+     * Now that we know the entire zone will be covered, we ensure all places within the zone will be captured. 
+     * 
+    */
+    Object.keys(selectedZoneBBOX).forEach((zone) => {
+
+        //For every BBOX, fetch the places from the api, filter the ones in the zone polygon through turf.booleanPointinPolygon and render these with a render function. 
+        const {center, radius} = calculateCenterRadius(selectedZoneBBOX[zone])
+        console.log("ZONE ID: ", zone, "\nZONE CENTER: ", center, "\nZONE RADIUS: ", radius)
+     
+        const endpoint = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${turf.getCoord(center['geometry']['coordinates'])}&radius=${radius}&type=place_type&keyword=${"restaurant"}&key=${data.googleMapsApiKey}`
+        return fetch(endpoint)
+          .then((data) => {console.log(data)})
+          .catch(error => console.error("ERROR WITH THE PLACES API fetch: ", error))
+    })
+
+    // return fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=midpoint_latitude,midpoint_longitude&radius=search_radius&type=place_type&keyword=search_keyword&key=${data.googleMapsApiKey}
+    // `)
+  })
+  .catch(err => {console.error("ERROR WITH THE GOOGLE MAP API KEY FETCH FROM SERVER: ", err)})
+
+      // const request = {
+      //   query: searchTerm,
+      //   fields: ["name", "geometry"],
+      // };
+
+      // service = new google.maps.places.PlacesService(map);
+}
+
+function filterQueryPlacesAPIResults(results){
+
+}
+
+function displayFilteredPlacesAPIResults(filteredResults){
+
+}
 
 /**
  * Loads a GeoJSON layer onto the map and sets up event listeners for interaction.
  * @param {Object} layerConfig - Configuration object for the layer
- * 
+ *
  * Data Feature in Google Maps API:
  * Within the Google Maps API, a "Data.Feature" refers to a specific class used in the Data layer of the API. The Data layer    provides a container for arbitrary geospatial data (points, line strings, polygons, etc.). A "Data.Feature" is an individual element in this layer that can represent a single point, line, or polygon. It can hold geometry, a set of properties, and an ID.
  * Here's an example of how a Data.Feature might be used in the Google Maps API:
@@ -158,7 +242,7 @@ function loadGeoJsonLayer(layerConfig) {
     .then((response) => response.json())
     .then((data) => {
       console.log("Geo JSON Data: ", data);
- 
+
       // Store the GeoJSON features
       geoJsonFeatures[layerConfig.id] = data.features;
 
@@ -168,7 +252,7 @@ function loadGeoJsonLayer(layerConfig) {
       // Style and click event for GeoJSON layer
       map.data.setStyle((feature) => {
         const zoneId = feature.getId();
-        const isSelected = selectedZones[zoneId];     
+        const isSelected = selectedZones[zoneId];
         return {
           fillColor: isSelected ? "#00FF00" : "#FF3333",
           strokeColor: isSelected ? "#00FF00" : "#FF5555",
@@ -176,43 +260,45 @@ function loadGeoJsonLayer(layerConfig) {
         };
       });
 
-        // Will grab the id of the object passed. Since all geojsons have different ids, this will grab them all.
-        map.data.addListener("click", (event) => {
-          const zoneId = getZoneId(event.feature);
-          console.log("ZONE ID: ", zoneId);
+      // Will grab the id of the object passed. Since all geojsons have different ids, this will grab them all.
+      map.data.addListener("click", (event) => {
+        const zoneId = getZoneId(event.feature);
+        console.log("ZONE ID: ", zoneId);
 
-          if (selectedZones[zoneId]) {
-            delete selectedZones[zoneId];
-            delete selectedZoneBBOX[zoneId]
-          } else {
-            selectedZones[zoneId] = true;
+        if (selectedZones[zoneId]) {
+          delete selectedZones[zoneId];
+          delete selectedZoneBBOX[zoneId];
+          delete selectedZoneCoords[zoneId];
+          console.log("SELECTED ZONE COORDS: ", selectedZoneCoords);
+          console.log("SELECTED ZONE BBOX: ", selectedZoneBBOX);
+        } else {
+          selectedZones[zoneId] = true;
 
-            console.log(geoJsonFeatures)
-            // Retrieve geometry data for the selected zone
-            const geometry = geoJsonFeatures[layerConfig.id].find(
-              (feature) => 
-              getZoneFromFeature(feature) === zoneId
-            )?.geometry;
-            selectedZoneCoords[zoneId] = geometry
-            computeBoundingBoxes()
-            // Use the geometry data as needed
-            console.log("Selected Zone Geometry: ", geometry);
-            console.log("SELECTED ZONE COORDS: ", selectedZoneCoords)
-          }
-
+          console.log(geoJsonFeatures);
+          // Retrieve geometry data for the selected zone
+          const geometry = geoJsonFeatures[layerConfig.id].find(
+            (feature) => getZoneFromFeature(feature) === zoneId
+          )?.geometry;
+          selectedZoneCoords[zoneId] = geometry;
+          computeBoundingBoxes();
+          // Use the geometry data as needed
+          console.log("Selected Zone Geometry: ", geometry);
+          console.log("SELECTED ZONE COORDS: ", selectedZoneCoords);
+          console.log("SELECTED ZONE BBOX: ", selectedZoneBBOX);
+        }
 
         console.log("Selected Zones: ", Object.keys(selectedZones));
         map.data.setStyle((feature) => {
           const featureZoneId = getZoneId(feature);
           const isSelected = selectedZones[featureZoneId];
-        
+
           return {
             fillColor: isSelected ? "#00FF00" : "#FF3333",
             strokeColor: isSelected ? "#00FF00" : "#FF5555",
             strokeWeight: 1,
           };
         });
-      })
+      });
     })
     .catch((err) => {
       console.error("Error loading GeoJSON data", err);
@@ -221,8 +307,13 @@ function loadGeoJsonLayer(layerConfig) {
 
 // Load the Google Maps API script with the API key from the express get('/api/google-maps-key') call
 // This is using the legacy code which relies on the api call rather than the NPM package: @googlemaps/js-api-loader
-fetch("http://localhost:3000/api/google-maps-key")
+async function returnGoogleMapKey(){
+  return fetch("http://localhost:3000/api/google-maps-key")
   .then((response) => response.json())
+}
+
+function main(){
+  returnGoogleMapKey()
   .then((data) => {
     const scriptId = "google-maps-api-script";
     if (!document.getElementById(scriptId)) {
@@ -234,15 +325,20 @@ fetch("http://localhost:3000/api/google-maps-key")
       script.async = true;
 
       //for turf script
-      const turfy = document.createElement('script')
-      turfy.id = "turf_import"
-      turfy.src = 'https://unpkg.com/@turf/turf'
+      const turfy = document.createElement("script");
+      turfy.id = "turf_import";
+      turfy.src = "https://unpkg.com/@turf/turf";
       turfy.async = true;
 
       document.body.appendChild(script);
       document.body.appendChild(turfy);
     }
-  });
+  })
+  .catch(err => err)
+}
+
+//Call main
+main()
 
 // At the end of your JavaScript file
 document.addEventListener("DOMContentLoaded", (event) => {
@@ -250,12 +346,13 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const applyFiltersButton = document.getElementById("applyFiltersButton");
   const ratingFilterSelect = document.getElementById("ratingFilter");
 
-  const point = turf.point([-74.0060, 40.7128]); // New York City
-  const buffered = turf.buffer(point, 1, { units: 'miles' });
+  const point = turf.point([-74.006, 40.7128]); // New York City
+  const buffered = turf.buffer(point, 1, { units: "miles" });
   console.log("Buffered: ", buffered);
 
   searchForm.addEventListener("submit", (event) => {
     event.preventDefault();
+   
     searchForm.reset();
     // Add logic for what should happen when the form is submitted
   });
