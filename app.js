@@ -139,84 +139,13 @@ function getZoneFromFeature(feature) {
  */
 function computeBoundingBoxes() {
   Object.entries(selectedZoneCoords).forEach(([zoneId, geometry]) => {
-    const bbox = turf.bbox(geometry);
-    selectedZoneBBOX[zoneId] = bbox;
+    const bbox = turf.bbox(geometry); 
+    selectedZoneBBOX[zoneId] = bbox
+    console.log(`Bounding box for zone ${zoneId}:`, selectedZoneBBOX[zoneId]);
+    console.log(`All Selected BBOX Coords: `, selectedZoneBBOX)
   });
 }
 
-function calculateCenterRadius(zoneBBOX){
-   /**
-    * We'll use the turf.centroid(points) method to find the middle of a set of points (the bbox NE and SW corners.)
-    */   
-   const centerRadiusObj = {}
-   const [SWLat, SWLng, NELat, NELng] = zoneBBOX;
-
-   const calculatedCenter = turf.point([(SWLng + NELng) / 2, (SWLat + NELat) / 2]);
-   centerRadiusObj['center'] = calculatedCenter
-
-   // Define the SouthWest and NorthEast Corner
-   const SWcorner = turf.point([SWLng, SWLat])
-   const NEcorner = turf.point([NELng, NELat])
-  //  console.log("SWCorner: ", SWcorner, "\n\nNECorner: ", NEcorner)
- 
-   // Calculate the distance to each corner and find the maximum in meters.
-   const radius = Math.max(turf.distance(calculatedCenter, SWcorner, {units: 'meters'}), turf.distance(calculatedCenter,NEcorner, {units: 'meters'}))  
-   centerRadiusObj['radius'] = radius
-   
-
-   console.log("AT THE END CALCULATE BBOX FARTHEST CORNER RADIUS Function. centerRadiusObj= ", centerRadiusObj)
-   return centerRadiusObj;
-}
-
-
-function queryPlacesAPI(){
-
-  /**
-   * Objective: For each zone in the selectedZoneBBOX, we're calling the google places api with functions calculateCenterPoint and calculateRadiusFromCenterToBBOXPoint (use the Haversine formula to calculate the distance between two points)
-   * Step 1: Call the returnGoogleMapKey() promise fetching the key from the endpoint on server.js
-   * Step 2: If successful, call calculateCenterPoint and calculateRadiusFromCenter and pass these values into the URL
-   */
-    
-  returnGoogleMapKey()
-  .then((data) => {
-    
-    /**For Every BBOX we have, we'll calculate the center point and radius within the bbox 
-     * NOTE: the radius will capture the entire bbox if captured from the bbox point furthest from the middle to account for irregular polygons with extended points.  
-     * Now that we know the entire zone will be covered, we ensure all places within the zone will be captured. 
-     * 
-    */
-    Object.keys(selectedZoneBBOX).forEach((zone) => {
-
-        //For every BBOX, fetch the places from the api, filter the ones in the zone polygon through turf.booleanPointinPolygon and render these with a render function. 
-        const {center, radius} = calculateCenterRadius(selectedZoneBBOX[zone])
-        console.log("ZONE ID: ", zone, "\nZONE CENTER: ", center, "\nZONE RADIUS: ", radius)
-     
-        const endpoint = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${turf.getCoord(center['geometry']['coordinates'])}&radius=${radius}&type=place_type&keyword=${"restaurant"}&key=${data.googleMapsApiKey}`
-        return fetch(endpoint)
-          .then((data) => {console.log(data)})
-          .catch(error => console.error("ERROR WITH THE PLACES API fetch: ", error))
-    })
-
-    // return fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=midpoint_latitude,midpoint_longitude&radius=search_radius&type=place_type&keyword=search_keyword&key=${data.googleMapsApiKey}
-    // `)
-  })
-  .catch(err => {console.error("ERROR WITH THE GOOGLE MAP API KEY FETCH FROM SERVER: ", err)})
-
-      // const request = {
-      //   query: searchTerm,
-      //   fields: ["name", "geometry"],
-      // };
-
-      // service = new google.maps.places.PlacesService(map);
-}
-
-function filterQueryPlacesAPIResults(results){
-
-}
-
-function displayFilteredPlacesAPIResults(filteredResults){
-
-}
 
 /**
  * Loads a GeoJSON layer onto the map and sets up event listeners for interaction.
