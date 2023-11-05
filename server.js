@@ -27,11 +27,11 @@ app.get("/api/google-maps-key", (req, res) => {
 });
 
 app.get("/api/places", async (req, res) => {
-  const { center, radius } = req.query;
+  const { center, radius, keyword } = req.query;
 
   try {
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${center}&radius=${radius}&type=place_type&keyword=restaurant&key=${process.env.GOOGLE_MAPS_API_KEY}`
+      `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${center}&radius=${radius}&keyword=${keyword}&key=${process.env.GOOGLE_MAPS_API_KEY}`
     );
     const data = await response.json();
     res.json(data);
@@ -42,6 +42,24 @@ app.get("/api/places", async (req, res) => {
       .json({ error: "Error fetching data from Google Places API" });
   }
 });
+
+app.get('/api/autocomplete', async (req, res) => {
+    const input = req.query.input; // This is the text input from the user for autocomplete
+    const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY; // Assuming you have your API key in an environment variable for security
+
+    // Construct the Google Places Autocomplete API endpoint
+    const autocompleteEndpoint = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${googleMapsApiKey}`;
+
+    try {
+        const response = await fetch(autocompleteEndpoint);
+        const data = await response.json();
+        res.json(data); // Send the autocomplete suggestions back to the client
+    } catch (error) {
+        console.error("Error with Google Places Autocomplete API: ", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
 
 app.use("/scripts", express.static(path.join(__dirname, "public")));
 app.use("/app.js", express.static("app.js")); // Serve app.js statically

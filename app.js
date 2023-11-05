@@ -78,6 +78,9 @@ let selectedZoneBBOX = {};
 //Store the filtered Places within in each zone
 let placesWithinSelectedZone = {}
 
+//Store all markers posted on the map
+let markersArray = []
+
 /**
  * Initializes the Google Map instance, centers it at the specified coordinates,
  * and loads the active GeoJSON layers.
@@ -85,9 +88,13 @@ let placesWithinSelectedZone = {}
  * For Guidance: //https://developers.google.com/maps/documentation/javascript/controls
  */
 async function initMap() {
-  map = new google.maps.Map(document.getElementById("map"), {
+
+  const { Map } = await google.maps.importLibrary("maps");
+  const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+  map = new Map(document.getElementById("map"), {
     center: { lat: 40.7128, lng: -74.006 },
     zoom: 11,
+    mapId: "Luegle-main"
     // disableDefaultUI: true,
   });
 
@@ -167,18 +174,21 @@ function calculateCenterRadius(zoneBBOX){
    centerRadiusObj['radius'] = radius
    
 
-   console.log("AT THE END CALCULATE BBOX FARTHEST CORNER RADIUS Function. centerRadiusObj= ", centerRadiusObj)
+  //  console.log("AT THE END CALCULATE BBOX FARTHEST CORNER RADIUS Function. centerRadiusObj= ", centerRadiusObj)
    return centerRadiusObj;
 }
 
 
-function queryPlacesAPI(searchTerm){
+async function queryPlacesAPI(searchTerm){
 
   /**
    * Objective: For each zone in the selectedZoneBBOX, we're calling the google places api with functions calculateCenterPoint and calculateRadiusFromCenterToBBOXPoint (use the Haversine formula to calculate the distance between two points)
    * Step 1: Call the returnGoogleMapKey() promise fetching the key from the endpoint on server.js
    * Step 2: If successful, call calculateCenterPoint and calculateRadiusFromCenter and pass these values into the URL
    */
+
+  //reset the placesWithinSelectedZone object for each call
+  placesWithinSelectedZone = {}
     
   returnGoogleMapKey()
   .then((data) => {
@@ -188,10 +198,10 @@ function queryPlacesAPI(searchTerm){
      * Now that we know the entire zone will be covered, we ensure all places within the zone will be captured. 
      * 
     */
-    Object.keys(selectedZoneBBOX).forEach((zone) => {
+    Object.keys(selectedZoneBBOX).forEach((zone) =>  {
       // Calculate the center and radius for each BBOX
       const { center, radius } = calculateCenterRadius(selectedZoneBBOX[zone]);
-      console.log("ZONE ID: ", zone, "\nZONE CENTER: ", center, "\nZONE RADIUS: ", radius);
+      // console.log("ZONE ID: ", zone, "\nZONE CENTER: ", center, "\nZONE RADIUS: ", radius);
     
       // Construct the endpoint URL
       const endpoint = `/api/places?center=${turf.getCoord(center['geometry']['coordinates'])}&radius=${radius}&keyword=${searchTerm}&googleMapsApiKey=${data.googleMapsApiKey}`;
@@ -200,27 +210,22 @@ function queryPlacesAPI(searchTerm){
       fetch(endpoint)
         .then(response => response.json()) // Parse the JSON response
         .then(data => {
-          // Check if the 'results' property exists in the response
-          if (data && data.results) {
 
-            console.log("DATA: ", data)
+          // Check if the 'results' property exists in the response and status is OK
+          if (data.results && data.status === 'OK') {
+
+            console.log(`DATA for ${zone}.`, data)
             // Filter the places within the zone polygon
             const placesInZone = filterQueryPlacesAPIResults(data, zone)
-            if(placesInZone !== undefined){placesWithinSelectedZone[zone] = placesInZone}
+            if(placesInZone){placesWithinSelectedZone[zone] = placesInZone}
             // Log the filtered places or render them as needed
-            // console.log("Places in Zone:", placesInZone);
+            console.log("Places in Zone:", placesWithinSelectedZone);
           } else {
             console.error("No results found in the API response");
           }
         })
         .catch(error => console.error("ERROR WITH THE PLACES API fetch: ", error));
     });
-
-    console.log("PLACES WITHIN SELECTED ZONE: ", placesWithinSelectedZone)
-    
-
-    // return fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=midpoint_latitude,midpoint_longitude&radius=search_radius&type=place_type&keyword=search_keyword&key=${data.googleMapsApiKey}
-    // `)
   })
   .catch(err => {console.error("ERROR WITH THE GOOGLE MAP API KEY FETCH FROM SERVER: ", err)})
 }
@@ -236,9 +241,68 @@ function filterQueryPlacesAPIResults(data, zone){
   return placesInZone
 }
 
-function displayFilteredPlacesAPIResults(filteredResults){
-
+// Used to clear markers on the map 
+function clearMarkers() {
+  for (let i = 0; i < markersArray.length; i++) {
+    markersArray[i].setMap(null);
+  }
+  markersArray = [];  // Reset the array
 }
+
+// Assuming 'map' is your Google Map instance
+async function addMarkersToMap() {
+
+  clearMarkers()
+  const {AdvancedMarkerElement} = await google.maps.importLibrary('marker')
+
+  Object.keys(placesWithinSelectedZone).forEach(zone => {
+    const places = placesWithinSelectedZone[zone];
+
+    console.log("ZONE: ", zone, "COORDINATES: ", places)
+
+    places.forEach(place => {
+      console.log(place)
+      const marker = new AdvancedMarkerElement({
+        position: {lat: place.geometry.location.lat, lng: place.geometry.location.lng},
+        map: map,
+        title: place.name
+      });
+      markersArray.push(marker)
+    });
+  });
+}
+
+
+function autocomplete(input) {
+  if (input.length < 3) { // Only start suggesting after 3 characters
+      document.getElementById('autocomplete-results').innerHTML = '';
+      return;
+  }
+  
+  // Make a request to your server or filter your local dataset
+  fetch('/api/autocomplete?query=' + encodeURIComponent(input))
+      .then(response => response.json())
+      .then(suggestions => {
+          displaySuggestions(suggestions);
+      });
+}
+
+//Renders suggestions for the search after 3 letters have been added to the #autocomplete-input element
+function displaySuggestions(suggestions) {
+  const resultsContainer = document.getElementById('autocomplete-results');
+  resultsContainer.innerHTML = ''; // Clear previous suggestions
+
+  suggestions.forEach(suggestion => {
+      const div = document.createElement('div');
+      div.innerHTML = suggestion; // Replace with how you want to display the suggestion
+      div.addEventListener('click', function() {
+          document.getElementById('autocomplete-input').value = suggestion; // Set input value to suggestion
+          resultsContainer.innerHTML = ''; // Clear suggestions
+      });
+      resultsContainer.appendChild(div);
+  });
+}
+
 
 /**
  * Loads a GeoJSON layer onto the map and sets up event listeners for interaction.
@@ -291,7 +355,6 @@ function loadGeoJsonLayer(layerConfig) {
           delete selectedZones[zoneId];
           delete selectedZoneBBOX[zoneId];
           delete selectedZoneCoords[zoneId];
-          delete placesWithinSelectedZone[zoneId]
           console.log("SELECTED ZONE COORDS: ", selectedZoneCoords);
           console.log("SELECTED ZONE BBOX: ", selectedZoneBBOX);
         } else {
@@ -368,6 +431,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const searchForm = document.getElementById("searchForm");
   const applyFiltersButton = document.getElementById("applyFiltersButton");
   const ratingFilterSelect = document.getElementById("ratingFilter");
+  const autocomplete_input = document.getElementById('autocomplete-input')
 
   const point = turf.point([-74.006, 40.7128]); // New York City
   const buffered = turf.buffer(point, 1, { units: "miles" });
@@ -375,10 +439,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   searchForm.addEventListener("submit", (event) => {
     event.preventDefault();
-   
+    queryPlacesAPI(event.target.children[1].value)
+    setTimeout(() => addMarkersToMap(), 2000)
     searchForm.reset();
     // Add logic for what should happen when the form is submitted
   });
+
+  autocomplete_input.addEventListener('input', function(e) {
+    autocomplete(e.target.value);
+});
 
   ratingFilterSelect.addEventListener("change", (event) => {
     // You can directly call applyFilters here if that's the intended behavior

@@ -20,14 +20,13 @@
 </head>
 
 <body>
-
+<div id="container">
   <div id="map"></div>
-
-
   <div id="placesListing" style="height: 400px; overflow: auto;">
-    <form id="searchForm">
-      <label for="Search">Search: </label>
-      <input type="text" id="Search" name="Search" placeholder="Search Query" required>
+    <form id="searchForm" >
+      <label for="autocomplete-input">Search: </label>
+      <input type="text" id="autocomplete-input" name="Search" placeholder="Search Query" required>
+      <div id="autocomplete-results"></div>
     </form>
     <label for="ratingFilter">Minimum Rating:</label>
     <select id="ratingFilter">
@@ -37,6 +36,7 @@
     </select>
     <button id="applyFiltersButton">Apply Filters</button>
   </div>
+</div>
 
 </body>
 
