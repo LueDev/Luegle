@@ -1,5 +1,5 @@
 /**
- * This script handles the initialization and interaction with a Google Map instance.
+ * GOAL: This script handles the initialization and interaction with a Google Map instance.
  * The map integrates multiple GeoJSON layers and provides functionality for selecting
  * zones, fetching places within those zones, and applying filters to the displayed places.
  */
@@ -94,8 +94,9 @@ async function initMap() {
   map = new Map(document.getElementById("map"), {
     center: { lat: 40.7128, lng: -74.006 },
     zoom: 11,
-    mapId: "Luegle-main"
-    // disableDefaultUI: true,
+    mapId: "Luegle-main",
+    zIndex: 1,
+    disableDefaultUI: true,
   });
 
   // Load GeoJSON layers. Currently only one can be used at a time. Maybe implement a toggle feature.
@@ -184,7 +185,7 @@ async function queryPlacesAPI(searchTerm){
   /**
    * Objective: For each zone in the selectedZoneBBOX, we're calling the google places api with functions calculateCenterPoint and calculateRadiusFromCenterToBBOXPoint (use the Haversine formula to calculate the distance between two points)
    * Step 1: Call the returnGoogleMapKey() promise fetching the key from the endpoint on server.js
-   * Step 2: If successful, call calculateCenterPoint and calculateRadiusFromCenter and pass these values into the URL
+   * Step 2: 
    */
 
   //reset the placesWithinSelectedZone object for each call
@@ -265,12 +266,49 @@ async function addMarkersToMap() {
       const marker = new AdvancedMarkerElement({
         position: {lat: place.geometry.location.lat, lng: place.geometry.location.lng},
         map: map,
-        title: place.name
+        title: place.name,
+        zIndex: 99 //Allows markers to be clicked instead of the map 
       });
+
+      // Create an InfoWindow instance
+      let infoWindow = new google.maps.InfoWindow();
+
+      // Sample data for the marker
+      let businessDetails = {
+        name: place.name,
+        address: place.vicinity,
+        rating: place.rating,
+        total_ratings: place.user_ratings_total
+      };
+      
+      // marker.addListener('click', ()=>{
+      //   console.log('marker clicked!')
+      // })
+
+      // Add click event listener to the marker
+      marker.addListener('click', function() {
+        // Content for the InfoWindow
+        var contentString = '<div id="content">'+
+            '<div id="siteNotice">'+
+            '</div>'+
+            '<h1 id="firstHeading" class="firstHeading">' + businessDetails.name + '</h1>'+
+            '<div id="bodyContent">'+
+            '<p><b>Address:</b> ' + businessDetails.address + '</p>'+
+            '<p><b>Rated:</b> ' + businessDetails.rating + '/5 </p>'+
+            '<p><b>Rated by:</b> ' + businessDetails.total_ratings + ' customers!</p>'
+            '</div>'+
+            '</div>';
+
+        // Set the content and open the InfoWindow
+        infoWindow.setContent(contentString);
+        infoWindow.open(map, marker);
+      });
+
       markersArray.push(marker)
-    });
-  });
+    })
+  })
 }
+
 
 
 function autocomplete(input) {
@@ -439,8 +477,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   searchForm.addEventListener("submit", (event) => {
     event.preventDefault();
-    queryPlacesAPI(event.target.children[1].value)
-    setTimeout(() => addMarkersToMap(), 2000)
+    const searchFor = event.target.children[0].value
+    // console.log("EVENT TARGET VALUE", searchFor)
+    queryPlacesAPI(searchFor)
+    setTimeout(() => addMarkersToMap(), 1150)
     searchForm.reset();
     // Add logic for what should happen when the form is submitted
   });
@@ -448,12 +488,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
   autocomplete_input.addEventListener('input', function(e) {
     autocomplete(e.target.value);
 });
-
-  ratingFilterSelect.addEventListener("change", (event) => {
-    // You can directly call applyFilters here if that's the intended behavior
-    event.preventDefault();
-    // applyFilters();
-  });
 
   applyFiltersButton.addEventListener("submit", (event) => {
     event.preventDefault();

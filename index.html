@@ -2,41 +2,76 @@
 <html>
 
 <head>
-
-  <title>Luegle</title>
-
-  <title>Google Maps Demo</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script>
-
-  <title>Luegle</title>
-  <!-- <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script> -->
   <script src="/app.js"></script>
   <style>
     #map {
       height: 900px;
       width: 100%;
     }
+
+    #listedPlacescontainer{
+      /* height: 400px;
+      overflow: auto;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-evenly; */
+      /* background-color: red; */
+      position: absolute;
+      left: 38%;
+      top: 15px;
+      z-index: 1;
+      background-color: #72a4f7;
+      padding: 15px;
+      border-radius: 25px;
+      text-align: center;
+      box-shadow:
+        inset 0 0 40px #fff,      /* inner white */
+        inset 20px 0 60px #f0f,   /* inner left magenta short */
+        inset -20px 0 60px #0ff,  /* inner right cyan short */
+        inset 20px 0 200px #f0f,  /* inner left magenta broad */
+        inset -20px 0 200px #0ff, /* inner right cyan broad */
+        0 0 40px #fff,            /* outer white */
+        -10px 0 70px #f0f,        /* outer left magenta */
+        10px 0 70px #0ff;         /* outer right cyan */
+    }
+
+    #searchForm input {
+     padding: 15px 40px; 
+     border-radius: 25px;
+     font-size: 18px;
+     color: black;
+     text-align: center;
+    }
+
+    input::placeholder {
+      font-size: 16px; /* or any size you want */
+      color: rgb(72, 85, 113);
+      margin: auto;
+      text-align: center;
+    }
+
   </style>
+
+  <title>Luegle</title>
 </head>
 
 <body>
-<div id="container">
-  <div id="map"></div>
-  <div id="placesListing" style="height: 400px; overflow: auto;">
-    <form id="searchForm" >
-      <label for="autocomplete-input">Search: </label>
-      <input type="text" id="autocomplete-input" name="Search" placeholder="Search Query" required>
-      <div id="autocomplete-results"></div>
-    </form>
-    <label for="ratingFilter">Minimum Rating:</label>
-    <select id="ratingFilter">
-      <option value="0">Any</option>
-      <option value="4">4 and above</option>
-      <option value="4.5">4.5 and above</option>
-    </select>
-    <button id="applyFiltersButton">Apply Filters</button>
+
+  <div id="container">
+    <div id="map"></div>
+    <div id="listedPlacescontainer">
+      <div id="placesListing" class="center">
+        <form id="searchForm">
+          <input type="text" id="autocomplete-input" name="Search" placeholder="Select And Search" required>
+          <div id="autocomplete-results"></div>
+        </form>
+      </div>
+    </div>
   </div>
-</div>
 
 </body>
 
