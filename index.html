@@ -9,33 +9,29 @@
   <script src="/app.js"></script>
   <style>
     #map {
-      height: 900px;
+      height: 1000px;
       width: 100%;
     }
 
     #listedPlacescontainer{
-      /* height: 400px;
-      overflow: auto;
-      display: flex;
-      flex-direction: row;
-      justify-content: space-evenly; */
-      /* background-color: red; */
       position: absolute;
-      left: 38%;
-      top: 15px;
+      left: 4%;
+      top: 35px;
       z-index: 1;
       background-color: #72a4f7;
       padding: 15px;
       border-radius: 25px;
       text-align: center;
+
+      /*https://www.caliper.com/maptitude/blog/10-best-online-mapping-software/default.htm*/
       box-shadow:
         inset 0 0 40px #fff,      /* inner white */
-        inset 20px 0 60px #f0f,   /* inner left magenta short */
-        inset -20px 0 60px #0ff,  /* inner right cyan short */
-        inset 20px 0 200px #f0f,  /* inner left magenta broad */
+        inset 20px 0 60px rgb(22, 123, 156),   /* inner left magenta short */
+        inset -20px 0 60px rgb(21, 255, 255),  /* inner right cyan short */
+        inset 20px 0 200px rgb(60, 86, 231),  /* inner left magenta broad */
         inset -20px 0 200px #0ff, /* inner right cyan broad */
-        0 0 40px #fff,            /* outer white */
-        -10px 0 70px #f0f,        /* outer left magenta */
+        0 0 30px #fff,            /* outer white */
+        -20px 0 70px rgb(40, 83, 255),        /* outer left magenta */
         10px 0 70px #0ff;         /* outer right cyan */
     }
 
@@ -52,6 +48,12 @@
       color: rgb(72, 85, 113);
       margin: auto;
       text-align: center;
+      font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    }
+
+    #resultsFound{
+      color: white;
+      padding-top: 11px;
     }
 
   </style>
@@ -69,6 +71,7 @@
           <input type="text" id="autocomplete-input" name="Search" placeholder="Select And Search" required>
           <div id="autocomplete-results"></div>
         </form>
+        <div id="resultsFound"></div>
       </div>
     </div>
   </div>

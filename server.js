@@ -43,30 +43,24 @@ app.get("/api/places", async (req, res) => {
   }
 });
 
-app.get('/api/autocomplete', async (req, res) => {
-    const input = req.query.input; // This is the text input from the user for autocomplete
-    const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY; // Assuming you have your API key in an environment variable for security
-
-    // Construct the Google Places Autocomplete API endpoint
-    const autocompleteEndpoint = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${googleMapsApiKey}`;
-
+app.get('/autocomplete', async (req, res) => {
+    const searchTerm = req.query.search;
+    const url = `https://maps.googleapis.com/maps/api/place/queryautocomplete/json?input=${searchTerm}&location=40.7128,-74.006&radius=200000&key=${process.env.GOOGLE_MAPS_API_KEY}`;
     try {
-        const response = await fetch(autocompleteEndpoint);
-        const data = await response.json();
-        res.json(data); // Send the autocomplete suggestions back to the client
+      const response = fetch(url)
+      .then(response => response.json())
+      .then(data => res.json(data))
     } catch (error) {
-        console.error("Error with Google Places Autocomplete API: ", error);
-        res.status(500).send("Internal Server Error");
+      res.status(500).json({ error: error.message });
     }
-});
+  });
 
 
 app.use("/scripts", express.static(path.join(__dirname, "public")));
 app.use("/app.js", express.static("app.js")); // Serve app.js statically
 
 //importing the geojson data statically for express js to utilize:
-app.use(
-  "/geojson",
+app.use("/geojson",
   express.static(
     "/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/Luegle/NYC_GeoJSON_Data"
   )

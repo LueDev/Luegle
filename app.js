@@ -81,6 +81,9 @@ let placesWithinSelectedZone = {}
 //Store all markers posted on the map
 let markersArray = []
 
+//Store all searches
+let searchHistory = []
+
 /**
  * Initializes the Google Map instance, centers it at the specified coordinates,
  * and loads the active GeoJSON layers.
@@ -137,8 +140,8 @@ function getZoneFromFeature(feature) {
   );
 }
 
-// Function to compute the bounding box for each selected zone
 /**
+ * Function to compute the bounding box for each selected zone
  * NOTE: A bounding box typically consists of two points: Southwest Corner and NorthEast Corner/
  * THIS Constitutes as a boundary box. 
  * 
@@ -182,6 +185,7 @@ function calculateCenterRadius(zoneBBOX){
 
 async function queryPlacesAPI(searchTerm){
 
+  searchHistory.push(searchTerm)
   /**
    * Objective: For each zone in the selectedZoneBBOX, we're calling the google places api with functions calculateCenterPoint and calculateRadiusFromCenterToBBOXPoint (use the Haversine formula to calculate the distance between two points)
    * Step 1: Call the returnGoogleMapKey() promise fetching the key from the endpoint on server.js
@@ -295,7 +299,7 @@ async function addMarkersToMap() {
             '<div id="bodyContent">'+
             '<p><b>Address:</b> ' + businessDetails.address + '</p>'+
             '<p><b>Rated:</b> ' + businessDetails.rating + '/5 </p>'+
-            '<p><b>Rated by:</b> ' + businessDetails.total_ratings + ' customers!</p>'
+            '<p><b>Rated by: </b> ' + businessDetails.total_ratings + ' customers!</p>'
             '</div>'+
             '</div>';
 
@@ -307,38 +311,6 @@ async function addMarkersToMap() {
       markersArray.push(marker)
     })
   })
-}
-
-
-
-function autocomplete(input) {
-  if (input.length < 3) { // Only start suggesting after 3 characters
-      document.getElementById('autocomplete-results').innerHTML = '';
-      return;
-  }
-  
-  // Make a request to your server or filter your local dataset
-  fetch('/api/autocomplete?query=' + encodeURIComponent(input))
-      .then(response => response.json())
-      .then(suggestions => {
-          displaySuggestions(suggestions);
-      });
-}
-
-//Renders suggestions for the search after 3 letters have been added to the #autocomplete-input element
-function displaySuggestions(suggestions) {
-  const resultsContainer = document.getElementById('autocomplete-results');
-  resultsContainer.innerHTML = ''; // Clear previous suggestions
-
-  suggestions.forEach(suggestion => {
-      const div = document.createElement('div');
-      div.innerHTML = suggestion; // Replace with how you want to display the suggestion
-      div.addEventListener('click', function() {
-          document.getElementById('autocomplete-input').value = suggestion; // Set input value to suggestion
-          resultsContainer.innerHTML = ''; // Clear suggestions
-      });
-      resultsContainer.appendChild(div);
-  });
 }
 
 
@@ -436,6 +408,36 @@ async function returnGoogleMapKey(){
   .then((response) => response.json())
 }
 
+// Function to render predictions
+function displayPredictions(predictions) {
+  const autocompleteResults = document.getElementById('autocomplete-results');
+  // Clear any existing predictions
+  autocompleteResults.innerHTML = '';
+
+  // Create a list of predictions
+  predictions.forEach(prediction => {
+    const listItem = document.createElement('div');
+    listItem.classList.add('autocomplete-item');
+    listItem.textContent = prediction.description;
+    listItem.setAttribute('data-place-id', prediction.place_id);
+
+    // Add an event listener to each prediction
+    listItem.addEventListener('click', function() {
+      const placeId = this.getAttribute('data-place-id');
+      // Populate the input field
+      document.getElementById('autocomplete-input').value = this.textContent;
+      // Optionally trigger a search or place a marker on the map
+      // ...
+      
+      // Clear predictions
+      autocompleteResults.innerHTML = '';
+    });
+
+    autocompleteResults.appendChild(listItem);
+  });
+}
+
+
 function main(){
   returnGoogleMapKey()
   .then((data) => {
@@ -467,30 +469,27 @@ main()
 // At the end of your JavaScript file
 document.addEventListener("DOMContentLoaded", (event) => {
   const searchForm = document.getElementById("searchForm");
-  const applyFiltersButton = document.getElementById("applyFiltersButton");
-  const ratingFilterSelect = document.getElementById("ratingFilter");
+  const resultsFound = document.getElementById("resultsFound");
   const autocomplete_input = document.getElementById('autocomplete-input')
-
-  const point = turf.point([-74.006, 40.7128]); // New York City
-  const buffered = turf.buffer(point, 1, { units: "miles" });
-  console.log("Buffered: ", buffered);
 
   searchForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const searchFor = event.target.children[0].value
-    // console.log("EVENT TARGET VALUE", searchFor)
     queryPlacesAPI(searchFor)
-    setTimeout(() => addMarkersToMap(), 1150)
+    setTimeout(() => {addMarkersToMap()}, 1150)
+    setTimeout(() => {resultsFound.innerHTML = `${markersArray.length} Results Found for ${searchHistory[searchHistory.length - 1]}`}, 1500)
     searchForm.reset();
-    // Add logic for what should happen when the form is submitted
   });
 
-  autocomplete_input.addEventListener('input', function(e) {
-    autocomplete(e.target.value);
-});
-
-  applyFiltersButton.addEventListener("submit", (event) => {
-    event.preventDefault();
-    // applyFilters();
+  autocomplete_input.addEventListener('input', async function(e) {
+    // const searchFor = autocomplete_input
+    console.log("autocomplete event listener triggered. new value: ", autocomplete_input.value)
+    const response = await fetch(`/autocomplete?search=${autocomplete_input.value}`);
+    const data = await response.json();
+    if (data.predictions) {
+      displayPredictions(data.predictions);
+    }
+    console.log("Autocomplete data: ", data)
   });
+
 });
