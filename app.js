@@ -13,49 +13,56 @@ const layersConfig = [
     id: "boroughBoundaries",
     name: "Borough_Boundaries",
     filePath:
-      "/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/Luegle/NYC_GeoJSON_Data/Borough_Boundaries.geojson",
+      "/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/Luegle/NYC_GeoJSON_Data/Borough_Boundaries.geojson" 
+      || "Luegle/NYC_GeoJSON_Data/Borough_Boundaries.geojson",
     active: false,
   },
   {
     id: "cityCouncilDistricts",
     name: "City_Council_Districts",
     filePath:
-      "/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/Luegle/NYC_GeoJSON_Data/City_Council_Districts.geojson",
+      "/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/Luegle/NYC_GeoJSON_Data/City_Council_Districts.geojson"
+      || "Luegle/NYC_GeoJSON_Data/City_Council_Districts.geojson",
     active: false,
   },
   {
     id: "communityDistricts",
     name: "Community_Districts",
     filePath:
-      "/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/Luegle/NYC_GeoJSON_Data/Community_Districts.geojson",
+      "/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/Luegle/NYC_GeoJSON_Data/Community_Districts.geojson"
+      || "Luegle/NYC_GeoJSON_Data/Community_Districts.geojson",
     active: false,
   },
   {
     id: "congressionalDistricts",
     name: "Congressional_Districts",
     filePath:
-      "/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/Luegle/NYC_GeoJSON_Data/Congressional_Districts.geojson",
+      "/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/Luegle/NYC_GeoJSON_Data/Congressional_Districts.geojson"
+      || "Luegle/NYC_GeoJSON_Data/Congressional_Districts.geojson",
     active: false,
   },
   {
     id: "electionDistricts",
     name: "Election_Districts",
     filePath:
-      "/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/Luegle/NYC_GeoJSON_Data/Election_Districts.geojson",
+      "/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/Luegle/NYC_GeoJSON_Data/Election_Districts.geojson"
+      || "Luegle/NYC_GeoJSON_Data/Election_Districts.geojson",
     active: true,
   },
   {
     id: "policeDistricts",
     name: "Police_Precincts",
     filePath:
-      "/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/Luegle/NYC_GeoJSON_Data/Police_Precincts.geojson",
+      "/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/Luegle/NYC_GeoJSON_Data/Police_Precincts.geojson"
+      || "Luegle/NYC_GeoJSON_Data/Police_Precincts.geojson",
     active: false,
   },
   {
     id: "schoolDistricts",
     name: "School_Districts",
     filePath:
-      "/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/Luegle/NYC_GeoJSON_Data/School_Districts.geojson",
+      "/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/Luegle/NYC_GeoJSON_Data/School_Districts.geojson"
+      || "Luegle/NYC_GeoJSON_Data/School_Districts.geojson",
     active: false,
   },
 ];

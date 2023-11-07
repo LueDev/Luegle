@@ -13,12 +13,7 @@ app.get("/", (req, res) => {
       res.status(500).send("Internal Server Error");
       return;
     }
-
-    const renderedHtml = data.replace(
-      "YOUR_API_KEY",
-      process.env.GOOGLE_MAPS_API_KEY
-    );
-    res.send(renderedHtml);
+    res.send(data);
   });
 });
 
@@ -63,6 +58,7 @@ app.use("/app.js", express.static("app.js")); // Serve app.js statically
 app.use("/geojson",
   express.static(
     "/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/Luegle/NYC_GeoJSON_Data"
+    || "Luegle/NYC_GeoJSON_Data"
   )
 );
 
