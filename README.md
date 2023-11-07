@@ -56,7 +56,7 @@ Before running this project, you'll need:
 
 ## Usage
 
-Once the application is running, you can interact with the map by selecting different geographic zones. Points of interest within the selected zone will be displayed on the map, and you can toggle between different layers to visualize various boundaries.
+Once the application is running, you can interact with the map by selecting different geographic zones which will be highlighted as green once selected. Then use the smart search and autocomplete feature to your liking to search for places WITHIN the selected zones. Without selection, addresses and keywords, autocompleted or not, will not be able to be searched for. 
 
 ## Contributing
 
