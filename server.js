@@ -6,6 +6,12 @@ const path = require("path");
 
 dotenv.config();
 
+const localGeoJsonPath = "/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/Luegle/NYC_GeoJSON_Data";
+const defaultGeoJsonPath = "Luegle/NYC_GeoJSON_Data";
+
+// Check if the local path exists and use it; otherwise, use the default path.
+const geoJsonPath = fs.existsSync(localGeoJsonPath) ? localGeoJsonPath : defaultGeoJsonPath;
+
 app.get("/", (req, res) => {
   fs.readFile("index.html", "utf8", (err, data) => {
     if (err) {
@@ -56,10 +62,7 @@ app.use("/app.js", express.static("app.js")); // Serve app.js statically
 
 //importing the geojson data statically for express js to utilize:
 app.use("/geojson",
-  express.static(
-    "/Users/luisjorge/code/Flatiron-Phase-1/20-Phase_1_Project/Luegle/NYC_GeoJSON_Data"
-    || "Luegle/NYC_GeoJSON_Data"
-  )
+  express.static(geoJsonPath)
 );
 
 app.listen(3000, () => console.log("Server started on port 3000"));
