@@ -477,8 +477,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     event.preventDefault();
     const searchFor = event.target.children[0].value
     queryPlacesAPI(searchFor)
-    setTimeout(() => {addMarkersToMap()}, 1150)
-    setTimeout(() => {resultsFound.innerHTML = `${markersArray.length} Results Found for ${searchHistory[searchHistory.length - 1]}`}, 1500)
+    setTimeout(() => {addMarkersToMap()}, 2150)
+    setTimeout(() => {resultsFound.innerHTML = `${markersArray.length} Results Found for ${searchHistory[searchHistory.length - 1]}`}, 2150)
     searchForm.reset();
   });
 
