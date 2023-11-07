@@ -58,6 +58,9 @@ Before running this project, you'll need:
 
 Once the application is running, you can interact with the map by selecting different geographic zones which will be highlighted as green once selected. Then use the smart search and autocomplete feature to your liking to search for places WITHIN the selected zones. Without selection, addresses and keywords, autocompleted or not, will not be able to be searched for. 
 
+Blog: https://dev.to/luedev/creating-luegle-a-google-maps-clone-4c3p, 
+Video: https://www.loom.com/share/178e15c4ea5f435984a40c93ea01105a?sid=bcb70d83-f152-4cb9-92eb-dfa0c85b1087
+
 ## Contributing
 
 Contributions are welcome! If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".

@@ -219,12 +219,10 @@ async function queryPlacesAPI(searchTerm){
       // Construct the endpoint URL
       const endpoint = `/api/places?center=${turf.getCoord(center['geometry']['coordinates'])}&radius=${radius}&keyword=${searchTerm}&googleMapsApiKey=${data.googleMapsApiKey}`;
     
-      let count = 0;
       // Fetch the places from the API
       fetch(endpoint)
         .then(response => response.json()) // Parse the JSON response
         .then(data => {
-
           // Check if the 'results' property exists in the response and status is OK
           if (data.results && data.status === 'OK') {
             console.log(`DATA for ${zone}.`, data)
@@ -479,13 +477,14 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const searchForm = document.getElementById("searchForm");
   const resultsFound = document.getElementById("resultsFound");
   const autocomplete_input = document.getElementById('autocomplete-input')
+  const commentForm = document.getElementById('comment-form')
 
   searchForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const searchFor = event.target.children[0].value
     queryPlacesAPI(searchFor)
-    setTimeout(() => {addMarkersToMap()}, 2150)
-    setTimeout(() => {resultsFound.innerHTML = `${markersArray.length} Results Found for ${searchHistory[searchHistory.length - 1]}`}, 2150)
+    setTimeout(() => {addMarkersToMap()}, 3150)
+    setTimeout(() => {resultsFound.innerHTML = `${markersArray.length} Results Found for ${searchHistory[searchHistory.length - 1]}`}, 3150)
     searchForm.reset();
   });
 

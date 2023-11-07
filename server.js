@@ -57,7 +57,11 @@ app.get('/autocomplete', async (req, res) => {
   });
 
 
-// app.use("/scripts", express.static(path.join(__dirname, "public")));
+/** 
+ * Serving statically because there is no fetching of data needed to load the page. 
+ * For example, Facebook would load dynamically because user data is needed to load the page, hence React States.
+ * However, in this app, only the map loads and needs nothing else so static is the way to go. 
+ */
 app.use("/app.js", express.static("app.js")); // Serve app.js statically
 
 //importing the geojson data statically for express js to utilize:
