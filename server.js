@@ -56,7 +56,7 @@ app.get('/autocomplete', async (req, res) => {
   });
 
 
-app.use("/scripts", express.static(path.join(__dirname, "public")));
+// app.use("/scripts", express.static(path.join(__dirname, "public")));
 app.use("/app.js", express.static("app.js")); // Serve app.js statically
 
 //importing the geojson data statically for express js to utilize:

@@ -182,14 +182,11 @@ function calculateCenterRadius(zoneBBOX){
    return centerRadiusObj;
 }
 
-
 async function queryPlacesAPI(searchTerm){
 
   searchHistory.push(searchTerm)
   /**
    * Objective: For each zone in the selectedZoneBBOX, we're calling the google places api with functions calculateCenterPoint and calculateRadiusFromCenterToBBOXPoint (use the Haversine formula to calculate the distance between two points)
-   * Step 1: Call the returnGoogleMapKey() promise fetching the key from the endpoint on server.js
-   * Step 2: 
    */
 
   //reset the placesWithinSelectedZone object for each call
@@ -208,9 +205,14 @@ async function queryPlacesAPI(searchTerm){
       const { center, radius } = calculateCenterRadius(selectedZoneBBOX[zone]);
       // console.log("ZONE ID: ", zone, "\nZONE CENTER: ", center, "\nZONE RADIUS: ", radius);
     
+      console.log("CENTER: ", center)
+      console.log("RADIUS: ", radius)
+      
+
       // Construct the endpoint URL
       const endpoint = `/api/places?center=${turf.getCoord(center['geometry']['coordinates'])}&radius=${radius}&keyword=${searchTerm}&googleMapsApiKey=${data.googleMapsApiKey}`;
     
+      let count = 0;
       // Fetch the places from the API
       fetch(endpoint)
         .then(response => response.json()) // Parse the JSON response
@@ -218,7 +220,6 @@ async function queryPlacesAPI(searchTerm){
 
           // Check if the 'results' property exists in the response and status is OK
           if (data.results && data.status === 'OK') {
-
             console.log(`DATA for ${zone}.`, data)
             // Filter the places within the zone polygon
             const placesInZone = filterQueryPlacesAPIResults(data, zone)
@@ -236,14 +237,14 @@ async function queryPlacesAPI(searchTerm){
 }
 
 function filterQueryPlacesAPIResults(data, zone){
-  const placesInZone = data.results.filter(place => {
+  const foundInZone = data.results.filter(place => {
     // Convert the place location to a GeoJSON Point
     const point = turf.point([place.geometry.location.lng, place.geometry.location.lat]);
     // Check if the point is within the zone polygon
     return turf.booleanPointInPolygon(point, selectedZoneCoords[zone]);
   });
 
-  return placesInZone
+  return foundInZone
 }
 
 // Used to clear markers on the map 
